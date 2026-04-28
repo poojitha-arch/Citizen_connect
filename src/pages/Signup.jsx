@@ -27,7 +27,7 @@ function Signup() {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  // ✅ FIXED: Send only email
+  // ✅ FIXED SEND OTP (send full data)
   const handleSendOtp = async (e) => {
     e.preventDefault();
 
@@ -48,14 +48,22 @@ function Signup() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          email: user.email   // 🔥 main fix
+          username: user.username,
+          email: user.email,
+          phone: user.phone,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          role: user.role,
+          password: user.password,
+          confirmPassword: user.confirmPassword
         })
       });
 
       const data = await response.text();
 
       if (response.ok) {
-        alert(data);
+        alert("OTP sent successfully");
         setOtpSent(true);
       } else {
         alert(data || "Failed to send OTP");
@@ -66,7 +74,7 @@ function Signup() {
     }
   };
 
-  // ✅ OTP verify same but registration happens in backend
+  // ✅ FIXED VERIFY OTP + REGISTER
   const handleVerifyOtp = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp-register`, {
@@ -75,17 +83,23 @@ function Signup() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          username: user.username,
           email: user.email,
-          otp: otp,
-          ...user   // 🔥 IMPORTANT: send full user data for registration
+          phone: user.phone,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          role: user.role,
+          password: user.password,
+          confirmPassword: user.confirmPassword,
+          otp: otp
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Signup successful");
-        console.log("Verify OTP response:", data);
+        alert("Signup successful 🎉");
         navigate("/login");
       } else {
         alert(data.message || "OTP verification failed");
@@ -128,10 +142,22 @@ function Signup() {
             <option value="ADMIN">Admin</option>
           </select>
 
-          <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" onChange={handleChange} required />
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            required
+          />
           <small>Password Strength: {getPasswordStrength()}</small>
 
-          <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} required />
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            onChange={handleChange}
+            required
+          />
 
           <div>
             <input type="checkbox" onChange={(e) => setAgree(e.target.checked)} />
