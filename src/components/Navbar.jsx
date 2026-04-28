@@ -1,39 +1,44 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-function Navbar(){
+function Navbar() {
+  const location = useLocation();
 
-return(
+  const hideAuthButtons =
+    location.pathname === "/citizen" ||
+    location.pathname === "/moderator" ||
+    location.pathname === "/admin" ||
+    location.pathname === "/politician";
 
-<nav className="navbar">
+  return (
+    <nav className="navbar">
+      <div className="navbar-logo">
+        IN Citizen Portal
+      </div>
 
-<div className="navbar-logo">
-IN Citizen Portal
-</div>
+      <ul className="nav-links">
+        <li><Link to="/">Home</Link></li>
+        <li><Link to="/schemes">Schemes</Link></li>
+        <li><Link to="/services">Services</Link></li>
+        <li><Link to="/contact">Contact</Link></li>
 
-<ul className="nav-links">
+        {!hideAuthButtons && (
+          <>
+            <li>
+              <Link className="login-btn" to="/login">
+                Login
+              </Link>
+            </li>
 
-<li><Link to="/">Home</Link></li>
-<li><Link to="/schemes">Schemes</Link></li>
-<li><Link to="/services">Services</Link></li>
-<li><Link to="/contact">Contact</Link></li>
-
-<li>
-<Link className="login-btn" to="/login">
-Login
-</Link>
-</li>
-
-<li>
-<Link className="signup-btn" to="/signup">
-Signup
-</Link>
-</li>
-
-</ul>
-
-</nav>
-
-);
+            <li>
+              <Link className="signup-btn" to="/signup">
+                Signup
+              </Link>
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
 }
 
 export default Navbar;

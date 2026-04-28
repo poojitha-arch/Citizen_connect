@@ -27,6 +27,7 @@ function Signup() {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  // ✅ FIXED: Send only email
   const handleSendOtp = async (e) => {
     e.preventDefault();
 
@@ -46,7 +47,9 @@ function Signup() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify({
+          email: user.email   // 🔥 main fix
+        })
       });
 
       const data = await response.text();
@@ -63,6 +66,7 @@ function Signup() {
     }
   };
 
+  // ✅ OTP verify same but registration happens in backend
   const handleVerifyOtp = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp-register`, {
@@ -72,14 +76,15 @@ function Signup() {
         },
         body: JSON.stringify({
           email: user.email,
-          otp: otp
+          otp: otp,
+          ...user   // 🔥 IMPORTANT: send full user data for registration
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Signup successful after OTP verification");
+        alert("Signup successful");
         console.log("Verify OTP response:", data);
         navigate("/login");
       } else {
@@ -103,54 +108,17 @@ function Signup() {
 
       <div className="signup-container">
         <h2>Create Your Account</h2>
-        <p>Join the Citizen - Politician Interaction Portal</p>
 
         <form onSubmit={handleSendOtp} className="signup-form">
-          <input
-            type="text"
-            name="username"
-            placeholder="Full Name"
-            onChange={handleChange}
-            required
-          />
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Mobile Number"
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="text"
-            name="address"
-            placeholder="Address"
-            onChange={handleChange}
-          />
+          <input type="text" name="username" placeholder="Full Name" onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+          <input type="tel" name="phone" placeholder="Mobile" onChange={handleChange} required />
+          <input type="text" name="address" placeholder="Address" onChange={handleChange} />
 
           <div className="two-fields">
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              onChange={handleChange}
-            />
-
-            <input
-              type="text"
-              name="state"
-              placeholder="State"
-              onChange={handleChange}
-            />
+            <input type="text" name="city" placeholder="City" onChange={handleChange} />
+            <input type="text" name="state" placeholder="State" onChange={handleChange} />
           </div>
 
           <select name="role" value={user.role} onChange={handleChange}>
@@ -160,39 +128,14 @@ function Signup() {
             <option value="ADMIN">Admin</option>
           </select>
 
-          <div className="password-field">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Create Password"
-              onChange={handleChange}
-              required
-            />
-
-            <span
-              className="toggle"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              👁
-            </span>
-          </div>
-
+          <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" onChange={handleChange} required />
           <small>Password Strength: {getPasswordStrength()}</small>
 
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            onChange={handleChange}
-            required
-          />
+          <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} required />
 
-          <div className="terms">
-            <input
-              type="checkbox"
-              onChange={(e) => setAgree(e.target.checked)}
-            />
-            <label>I agree to the Terms & Conditions</label>
+          <div>
+            <input type="checkbox" onChange={(e) => setAgree(e.target.checked)} />
+            <label> Accept Terms</label>
           </div>
 
           {!otpSent ? (
@@ -204,7 +147,6 @@ function Signup() {
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                required
               />
               <button type="button" onClick={handleVerifyOtp}>
                 Verify OTP & Register
@@ -212,19 +154,8 @@ function Signup() {
             </>
           )}
 
-          <p className="login-link">
-            Already have an account?
-            <span onClick={() => navigate("/login")}> Login</span>
-          </p>
         </form>
       </div>
-
-      <footer className="footer">
-        <p>
-          © 2026 Citizen-Politician Interaction Portal | Government Services
-          Platform
-        </p>
-      </footer>
     </div>
   );
 }
